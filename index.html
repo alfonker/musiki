@@ -157,6 +157,10 @@ td.ovch{color:var(--ink)}
 .pfloat.on{opacity:1;pointer-events:auto;transform:none}
 .pfloat .seg{align-items:center}
 @media (prefers-reduced-motion:reduce){.pfloat{transition:none}}
+.gvar{flex-basis:100%;display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:8px;margin-top:2px}
+details.gvar>summary{cursor:pointer;font-size:13px;color:var(--accent);padding:0}
+details.gvar[open]>summary{margin-bottom:6px}
+.gvrow{display:grid;gap:4px}
 .prog .rn{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
 .songs{display:flex;flex-wrap:wrap;gap:6px 8px;font-size:13.5px;margin:0;padding:0;list-style:none}
 .songs li{background:var(--chip);border-radius:3px;padding:3px 8px;max-width:100%}
@@ -178,8 +182,7 @@ footer{padding-top:30px;color:var(--muted);font-size:13px}
 <div class="wrap">
 <header class="site">
   <div class="brand">
-    <div class="eyebrow">ALFONKER</div>
-    <h1 data-tr="Alfonker'in Musiki Şeysi">Alfonker's Musical Thingamajig</h1>
+    <h1 data-tr="Alfonker'in Musiki Şeysi">Alfonker's Music Stuff</h1>
   </div>
   <div class="controls">
     <div class="instsw"><span class="meta" data-tr="Akor kutuları:">Chord boxes:</span><div class="seg" id="inst" role="group" aria-label="Instrument"><button data-i="gtr" aria-pressed="true" data-tr="Gitar" title="E A D G B E">Guitar</button><button data-i="mando" aria-pressed="false" title="G D A E">Mandolin</button><button data-i="uke" aria-pressed="false" title="G C E A (re-entrant)">Ukulele</button><button data-i="bzk" aria-pressed="false" data-tr="Buzuki DAD" title="Trichordo D A D">Bouzouki DAD</button><button data-i="piano" aria-pressed="false" data-tr="Piyano">Piano</button></div></div>
@@ -428,7 +431,10 @@ var INSTS={
 };
 var INST="gtr";
 try{var si=localStorage.getItem("alf-inst");if(INSTS[si])INST=si}catch(e){}
-var VCACHE={};
+var VCACHE={},VALL={};
+/* guitar barre variants: root on the 6th (str 0) or 5th (str 1) string, closed shape */
+function gtrShape(pc,qk,str){if(!QBYK[qk])return null;voicingsFor("gtr",pc,qk);var all=VALL["gtr|"+pc+"|"+qk]||[],rf=(pc-[4,9,2][str]+12)%12;if(rf===0)rf=12;
+  var c=all.filter(function(v){if(v.fr[str]!==rf||v.opens>0)return false;for(var s=0;s<str;s++)if(v.fr[s]!==-1)return false;return v.mn>=rf-1}).sort(function(a,b){return a.sc-b.sc});return c[0]||null}
 function voicings(pc,qk){return voicingsFor(INST,pc,qk)}
 function voicingsFor(inst,pc,qk){
   var key=inst+"|"+pc+"|"+qk;if(VCACHE[key])return VCACHE[key];
@@ -447,7 +453,7 @@ function voicingsFor(inst,pc,qk){
   if(n===3&&req.length>3){if(qk==="m7b5")req=[0,3,6];else if(qk==="dim7")req=[0,3,9];else{req=req.filter(function(x){return x!==7});if(req.length>3)req=req.filter(function(x){return x!==0});req=req.slice(0,3)}}
   function note(s,f){return (tun[s]+f)%12}
   var topMute=inst==="gtr"&&qk==="5";
-  var cand=tun.map(function(t,s){var a=(s<cfg.mute||(topMute&&s>=3))?[-1]:[];for(var f=0;f<=cfg.maxF;f++)if(rel.hasOwnProperty(note(s,f)))a.push(f);return a});
+  var cand=tun.map(function(t,s){var a=(s<cfg.mute||(topMute&&s>=3)||(inst==="gtr"&&s===5))?[-1]:[];for(var f=0;f<=cfg.maxF;f++)if(rel.hasOwnProperty(note(s,f)))a.push(f);return a});
   var all=[],fr=[];
   (function rec(s){
     if(s===n){test(fr.slice());return}
@@ -472,10 +478,10 @@ function voicingsFor(inst,pc,qk){
     var bassPen=0;if(!cfg.rootBass){var b=rel[note(cfg.bassStr,fr[cfg.bassStr])];bassPen=b===0?0:b===7?.8:(b===3||b===4)?1.2:1.5}
     var sc=mn*.35+Math.max(0,span-3)*2.5+span*.3+bassPen+mutes*.6+fd.length*.15-(n===6?snd.length*.25:0);
     if(q.iv.length===4&&!have[7]&&qk!=="dim7"&&qk!=="m7b5")sc+=.6;
-    all.push({fr:fr,sc:sc,mn:mn,mx:mx,opens:opens,partial:!!voicingsFor.retry});
+    all.push({fr:fr,sc:sc,mn:mn,mx:mx,opens:opens,partial:!!voicingsFor.retry,rel:fr.map(function(f,s){return f<0?undefined:rel[note(s,f)]})});
   }
   if(!all.length&&n===3&&!voicingsFor.retry){req=[0,q.req.filter(function(x){return x!==0})[0]];var keep=cfg.span;cfg.span=function(){return 4};voicingsFor.retry=1;(function rec(s){if(s===n){test(fr.slice());return}for(var i=0;i<cand[s].length;i++){fr[s]=cand[s][i];rec(s+1)}})(0);voicingsFor.retry=0;cfg.span=keep;}
-  var res=[];
+  VALL[key]=all;var res=[];if(inst==="gtr"&&qk!=="5"){var nt5=all.filter(function(v){return v.fr[5]!==-1});if(nt5.length)all=nt5}
   var op=all.filter(function(v){return v.opens>0&&v.mx<=cfg.openMax}).map(function(v){return {v:v,s:v.sc-.45*v.opens}}).sort(function(a,b){return a.s-b.s});
   if(op.length)res.push(op[0].v);
   var cl=all.filter(function(v){return v.opens===0}).sort(function(a,b){return a.sc-b.sc});
@@ -795,7 +801,19 @@ function keySel(mode,t,id){var cur=tonicOf(mode,t),o='<select class="ksel" aria-
 function srcLink(p){if(p.v)return '<a class="vsrc" href="https://www.youtube.com/watch?v='+p.v+'" target="_blank" rel="noopener" title="'+esc(p.t)+'">▶ '+esc(p.t)+' ↗</a>';if(p.src)return p.src[1]?'<a class="vsrc" href="'+p.src[1]+'" target="_blank" rel="noopener">'+esc(p.src[0])+' ↗</a>':'<span class="vsrc">'+esc(p.src[0])+'</span>';return ''}
 function progInner(pi){var p=PROGS[pi],t=progT(pi),nm=p.n[LANG==="tr"?1:0];
   var G=groups(),md=p._mode&&G.modal.indexOf(pi)>=0?' · '+MODENAME[p._mode][LANG==="tr"?1:0]:'';
-  return '<div class="phead"><h4>'+esc(nm)+' '+srcLink(p)+'</h4><span class="rn">'+esc(p.rn.replace(/b(?=[IViv1-7])/g,"♭").replace(/#(?=[IViv1-9])/g,"♯"))+' · '+(p.m==="m"?L("minor","minör"):L("major","majör"))+md+'</span><div class="ptr seg"><button data-pt="-1" aria-label="'+L("Down a semitone","Yarım ses aşağı")+'">−</button>'+keySel(p.m,t)+'<button data-pt="1" aria-label="'+L("Up a semitone","Yarım ses yukarı")+'">+</button>'+(ps.loc[pi]?'<button data-pt="0" title="'+L("Back to the page key","Sayfa tonuna dön")+'">↺</button>':'')+'</div><a href="#povr" class="toov meta">'+L("↑ overview","↑ genel bakış")+'</a></div><div class="cells">'+p.rn.split(/\s+/).map(function(x){return rnCell(x,p.m,t)}).join("")+'</div>'}
+  return '<div class="phead"><h4>'+esc(nm)+' '+srcLink(p)+'</h4><span class="rn">'+esc(p.rn.replace(/b(?=[IViv1-7])/g,"♭").replace(/#(?=[IViv1-9])/g,"♯"))+' · '+(p.m==="m"?L("minor","minör"):L("major","majör"))+md+'</span><div class="ptr seg"><button data-pt="-1" aria-label="'+L("Down a semitone","Yarım ses aşağı")+'">−</button>'+keySel(p.m,t)+'<button data-pt="1" aria-label="'+L("Up a semitone","Yarım ses yukarı")+'">+</button>'+(ps.loc[pi]?'<button data-pt="0" title="'+L("Back to the page key","Sayfa tonuna dön")+'">↺</button>':'')+'</div><a href="#povr" class="toov meta">'+L("↑ overview","↑ genel bakış")+'</a></div><div class="cells">'+p.rn.split(/\s+/).map(function(x){return rnCell(x,p.m,t)}).join("")+gtrVariants(p,t)+'</div>'}
+function gtrVariants(p,t){if(INST!=="gtr")return "";var toks=p.rn.split(/\s+/),ch=toks.map(function(x){var r=parseRN(x);if(!r)return null;return {r:r,pc:(tonicOf(p.m,t)+r.semi+120)%12,name:spellDeg(p.m,r.idx,r.semi,t)+r.disp+(r.bass!==null?"/"+spellDeg(p.m,r.bassIdx,r.bass,t):"")}});
+  if(ch.some(function(c){return !c}))return "";
+  function opts(c){var o=[0,1,2].map(function(k){return gtrShape(c.pc,c.r.q,k)}).filter(Boolean);if(!o.length){var d=voicings(c.pc,c.r.q)[0];if(d)o=[d]}return o}
+  var O=ch.map(opts);function shp(v){return v.fr[0]!==-1?0:v.fr[1]!==-1?1:2}
+  function run(first){var f0=[first,2,1-first].map(function(k){return gtrShape(ch[0].pc,ch[0].r.q,k)}).filter(Boolean)[0]||O[0][0];
+    var D=[[{c:0,p:-1}]],L0=[[f0]];
+    for(var i=1;i<ch.length;i++){L0[i]=O[i];D[i]=O[i].map(function(v){var best=null;L0[i-1].forEach(function(u,j){var c=D[i-1][j].c+Math.abs(v.mn-u.mn)+(shp(v)===2&&shp(f0)!==2?2.5:0)+(ch[i].pc===ch[i-1].pc&&ch[i].r.q===ch[i-1].r.q&&v!==u?6:0);if(!best||c<best.c)best={c:c,p:j}});return best})}
+    var n=ch.length-1,k=0,out=[];if(n>0){D[n].forEach(function(x,j){if(x.c<D[n][k].c)k=j})}
+    for(var i2=n;i2>=0;i2--){out[i2]={c:ch[i2],v:L0[i2][k]};k=D[i2][k].p}return out}
+  var V=[run(0),run(1)];if(V[0].map(function(x){return x.v&&x.v.fr.join()}).join("|")===V[1].map(function(x){return x.v&&x.v.fr.join()}).join("|"))V.pop();
+  var rows=V.map(function(row,k){var f=row[0].v&&row[0].v.mn;return '<div class="gvrow"><span class="meta">'+L("Variant "+(k+1)+" · barre, starting with the root on the "+(row[0].v&&row[0].v.fr[0]!==-1?"6th":row[0].v&&row[0].v.fr[1]!==-1?"5th":"4th")+" string (fret "+f+")",(k+1)+". varyant · bareli, kök "+(row[0].v&&row[0].v.fr[0]!==-1?"6.":row[0].v&&row[0].v.fr[1]!==-1?"5.":"4.")+" telde başlıyor ("+f+". perde)")+'</span><div class="cells">'+row.map(function(x){return '<div class="cell"><i>'+esc(x.c.r.label)+'</i>'+(x.v?chordSVG(x.v,true):"")+'<b>'+esc(x.c.name)+'</b></div>'}).join("")+'</div></div>'}).join("");
+  return toks.length<=4?'<div class="gvar">'+rows+'</div>':'<details class="gvar"><summary>'+L("Guitar barre variants ("+V.length+")","Gitar bareli varyantlar ("+V.length+")")+'</summary>'+rows+'</details>'}
 function redrawProg(art){var pi=+art.dataset.pi,body=art.querySelector(".cells");var tmp=document.createElement("div");tmp.innerHTML=progInner(pi);art.replaceChild(tmp.firstChild,art.querySelector(".phead"));art.replaceChild(tmp.lastChild,body)}
 plist.addEventListener("click",function(e){var b=e.target.closest("button[data-pt]");if(!b)return;var art=b.closest(".prog"),pi=+art.dataset.pi,v=+b.dataset.pt;ps.loc[pi]=v===0?0:(((ps.loc[pi]||0)+v)%12+12)%12;redrawProg(art);var nb=art.querySelector('button[data-pt="'+v+'"]');if(nb)nb.focus()});
 plist.addEventListener("change",function(e){var sel=e.target.closest("select.ksel");if(!sel)return;var art=sel.closest(".prog"),pi=+art.dataset.pi,p=PROGS[pi];ps.loc[pi]=(((+sel.value-tonicOf(p.m,ps.t+progBase(pi)))%12)+12)%12;redrawProg(art);art.querySelector("select.ksel").focus()});
@@ -862,7 +880,7 @@ document.querySelector("nav.tabs").addEventListener("click",function(e){var b=e.
 function fromHash(){var h=(location.hash||"").slice(1);if(h==="mandolin")showTab("mandolin");else if(h==="progressions")showTab("progressions");else if(h&&document.getElementById(h)&&document.getElementById("tab-mandolin").contains(document.getElementById(h)))showTab("mandolin");else{var s=null;try{s=localStorage.getItem("alf-tab")}catch(e){}showTab(s==="mandolin"?"mandolin":"progressions")}}
 window.addEventListener("hashchange",fromHash);fromHash();
 var langEl=document.getElementById("lang");
-function setLang(l){LANG=l;document.title=l==="tr"?"Alfonker'in Musiki Şeysi":"Alfonker's Musical Thingamajig";try{localStorage.setItem("alf-lang",l)}catch(e){}[].forEach.call(langEl.children,function(b){b.setAttribute("aria-pressed",String(b.dataset.l===l))});applyStatic();redrawers.forEach(function(f){f()})}
+function setLang(l){LANG=l;document.title=l==="tr"?"Alfonker'in Musiki Şeysi":"Alfonker's Music Stuff";try{localStorage.setItem("alf-lang",l)}catch(e){}[].forEach.call(langEl.children,function(b){b.setAttribute("aria-pressed",String(b.dataset.l===l))});applyStatic();redrawers.forEach(function(f){f()})}
 langEl.addEventListener("click",function(e){var b=e.target.closest("button[data-l]");if(!b)return;setLang(b.dataset.l)});
 var instEl=document.getElementById("inst");
 function syncInst(){[].forEach.call(instEl.children,function(b){b.setAttribute("aria-pressed",String(b.dataset.i===INST))})}
