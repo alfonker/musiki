@@ -208,6 +208,7 @@ details.more[open]>summary{margin-bottom:6px}
 footer{padding-top:30px;color:var(--muted);font-size:16px}
 @media (max-width:520px){.posgrid,.allroots,.chordgrid{grid-template-columns:1fr}.labelmode span.lbl{display:none}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.ovintro p{margin:.45em 0}.ovabc{padding-left:1.2em}
 </style>
 
 <div class="wrap">
@@ -332,7 +333,13 @@ footer{padding-top:30px;color:var(--muted);font-size:16px}
 <div id="tab-progressions" role="tabpanel" aria-labelledby="t-progressions">
 <section id="povr" class="povr" aria-labelledby="povr-h">
   <h3 id="povr-h" data-tr="Noluyor Burda?">What's Going On?</h3>
-  <p class="meta"><span id="ovcount"></span> <span data-tr="Majör: majör tonun içinde kalanlar. Minör: doğal ya da armonik minörde kalanlar. Geri kalanlar otomatik ayrıldı: I7 ile IV7'yi birlikte ya da I, ♭III ve IV majörü birlikte kullananlar blues; modal: akor sesleri tek bir moda sığanlar ya da Doryen ile doğal minörü, Miksolidyen ile majörü karıştıranlar (mod sağda yazıyor); hiçbirine uymayanlar karışık. Vurgulu numaralar ton dışı akorlar, sağdaki Do majör / La minör hangi tona göre okunduğu. Akorlara ya da ↓ işaretine tıklayınca kartın tamamı açılır; her kartta geri dönmek için ↑ noluyor burda var.">Major: stays inside the major key. Minor: stays inside natural or harmonic minor. The rest is sorted automatically: anything with both I7 and IV7, or with major I, ♭III and IV together, is blues; modal holds progressions whose chord tones fit one mode, or mix Dorian with natural minor, or Mixolydian with major (the mode is named on the right); what fits none is miscellaneous. Highlighted numerals are outside the key, and C/Am on the right shows which tonic it is read against. Click the chords or ↓ to open the full card; each card has ↑ what’s going on to come back.</span></p>
+  <div class="meta ovintro">
+  <p><span id="ovcount"></span> <span data-tr="Şarkı ismiyle YouTube'da dinlemeye gidiyoruz, akor'a basınca akorlarına.">Click a song title to go listen on YouTube, click “chords” to go to its chords.</span></p>
+  <p data-tr="Aşağıdaki listede tüm gidişatlar Do majör ya da La minör'e göre yazılı. Blues ve Bluesvari gidişatların varsayılan toniği La.">Everything in the list below is written in C major or A minor. Blues and bluesy progressions default to A.</p>
+  <p><span data-tr="&lt;b&gt;Majör:&lt;/b&gt; majör tonun içinde kalanlar."><b>Major:</b> stays inside the major key.</span><br><span data-tr="&lt;b&gt;Minör:&lt;/b&gt; doğal ya da armonik minörde kalanlar."><b>Minor:</b> stays inside natural or harmonic minor.</span><br><span data-tr="Geri kalanlar da şöyle ayrıldı.">The rest got sorted like this.</span></p>
+  <p class="ovabc"><span data-tr="a. &lt;b&gt;Blues/Bluesvari:&lt;/b&gt; I7 ile IV7'yi birlikte ya da I, ♭III ve IV majörü birlikte kullananlar.">a. <b>Blues/bluesy:</b> uses I7 and IV7 together, or major I, ♭III and IV together.</span><br><span data-tr="b. &lt;b&gt;Modal:&lt;/b&gt; akor sesleri tek bir moda sığanlar ya da mesela Doryen ile doğal minörü, Miksolidyen ile majörü karıştıranlar (mod sağda yazıyor).">b. <b>Modal:</b> the chord tones fit a single mode, or it mixes, say, Dorian with natural minor or Mixolydian with major (the mode is named on the right).</span><br><span data-tr="c. &lt;b&gt;Karışık:&lt;/b&gt; hiçbirine uymayanlar da karışık işte...">c. <b>Mixed:</b> whatever fits none of the above is, well, mixed...</span></p>
+  <p data-tr="Vurgulu numaralar ton dışı akorlar, sağdaki Do majör / La minör hangi tona göre okunduğu. Akorlara ya da ↓ işaretine tıklayınca kartın tamamı açılıyor; her kartta geri dönmek için ↑ noluyor burda var.">Highlighted numerals are chords outside the key; the C major / A minor on the right tells you which key it’s read in. Click the chords or the ↓ to open the full card; every card has a ↑ what’s going on to get back here.</p>
+  </div>
   <div class="ovgrid" id="ovgrid"></div>
 </section>
 <section id="amus" class="amus" aria-labelledby="amus-h">
@@ -911,7 +918,7 @@ function progLede(){
    'David Bennett entries were extracted from the auto-generated captions of each video and cross-checked against the video chapters. Cohen and Dylan entries come from the user-transcribed charts on Cohen Chords and dylanchords: keys and numerals were worked out by script, and each example was checked against the chart, not against the recording. The other entries follow the article linked on the card.',
    'David Bennett girdileri her videonun otomatik altyazılarından çıkarıldı ve video bölümleriyle karşılaştırıldı. Cohen ve Dylan girdileri Cohen Chords ve dylanchords\'taki kullanıcı transkripsiyonlarından geliyor: ton ve numaralar betikle çıkarıldı, her örnek kayıtla değil şemayla karşılaştırıldı. Diğer girdiler kartta bağlantısı verilen makaleye dayanıyor.');
 }
-function ovCount(){var n=PROGS.length,so={};PROGS.forEach(function(p){p.s.forEach(function(x){so[x.split("|").slice(0,2).join("|")]=1})});document.getElementById("ovcount").textContent=L(n+" progressions and "+Object.keys(so).length+" example songs from the web sources linked on each card. The list below writes every progression in C major or A minor (blues in A).","Her kartta bağlantısı verilen internet kaynaklarından "+n+" gidişat ve "+Object.keys(so).length+" örnek şarkı. Aşağıdaki listede tüm gidişatlar Do majör ya da La minörde yazılı (blues La'da).")}
+function ovCount(){var n=PROGS.length,so={};PROGS.forEach(function(p){p.s.forEach(function(x){so[x.split("|").slice(0,2).join("|")]=1})});document.getElementById("ovcount").textContent=L("Put together to be of some use for songwriting and the like: "+n+" chord progressions and "+Object.keys(so).length+" example songs.","Şarkı markı işlerine faydası olsun maksadıylan: "+n+" akor gidişatı ve "+Object.keys(so).length+" örnek şarkı.")}
 redrawers.push(function(){progLede();ovCount();drawOverview();drawProgs()});ovCount();
 progLede();drawOverview();drawProgs();
 
