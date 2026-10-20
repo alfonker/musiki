@@ -336,8 +336,8 @@ footer{padding-top:30px;color:var(--muted);font-size:16px}
   <div class="meta ovintro">
   <p><span id="ovcount"></span> <span data-tr="Şarkı ismiyle YouTube'da dinlemeye gidiyoruz, akor'a basınca akorlarına.">Click a song title to go listen on YouTube, click “chords” to go to its chords.</span></p>
   <p data-tr="Aşağıdaki listede tüm gidişatlar Do majör ya da La minör'e göre yazılı. Blues ve Bluesvari gidişatların varsayılan toniği La.">Everything in the list below is written in C major or A minor. Blues and bluesy progressions default to A.</p>
-  <p><span data-tr="&lt;b&gt;Majör:&lt;/b&gt; majör tonun içinde kalanlar."><b>Major:</b> stays inside the major key.</span><br><span data-tr="&lt;b&gt;Minör:&lt;/b&gt; doğal ya da armonik minörde kalanlar."><b>Minor:</b> stays inside natural or harmonic minor.</span><br><span data-tr="Geri kalanlar da şöyle ayrıldı.">The rest got sorted like this.</span></p>
-  <p class="ovabc"><span data-tr="a. &lt;b&gt;Blues/Bluesvari:&lt;/b&gt; I7 ile IV7'yi birlikte ya da I, ♭III ve IV majörü birlikte kullananlar.">a. <b>Blues/bluesy:</b> uses I7 and IV7 together, or major I, ♭III and IV together.</span><br><span data-tr="b. &lt;b&gt;Modal:&lt;/b&gt; akor sesleri tek bir moda sığanlar ya da mesela Doryen ile doğal minörü, Miksolidyen ile majörü karıştıranlar (mod sağda yazıyor).">b. <b>Modal:</b> the chord tones fit a single mode, or it mixes, say, Dorian with natural minor or Mixolydian with major (the mode is named on the right).</span><br><span data-tr="c. &lt;b&gt;Karışık:&lt;/b&gt; hiçbirine uymayanlar da karışık işte...">c. <b>Mixed:</b> whatever fits none of the above is, well, mixed...</span></p>
+  <p><span data-tr="&lt;b&gt;Majör:&lt;/b&gt; baştan sona majör tonun içinde kalanlar, yani TAM diyatonik."><b>Major:</b> stays inside the major key from start to finish, fully diatonic.</span><br><span data-tr="&lt;b&gt;Minör:&lt;/b&gt; doğal minörde, armonik minörde ya da ikisinin karışımında kalanlar (aynı gidişatta hem ♭VII hem V olabilir)."><b>Minor:</b> stays in natural minor, harmonic minor, or a mix of the two (♭VII and V can share a loop).</span><br><span data-tr="Geri kalanlar da şöyle ayrıldı.">The rest got sorted like this.</span></p>
+  <p class="ovabc"><span data-tr="a. &lt;b&gt;Alengirli Majör / Alengirli Minör:&lt;/b&gt; tonu belli ama düz diyatonik olmayanlar. Paralel tondan ödünç akorlar (majörde ♭VI, ♭III, iv gibi), ikincil dominantlar (II7, III7, VI7), ikincil eksiltik akorlar, tritone ikamesi, Napoliten ♭II kullananlar burada. Minörde melodik minörden gelen akorlar (i6 gibi) da buraya girdi.">a. <b>Major / Minor with a Twist:</b> the key is clear but it isn’t plain diatonic. Borrowed chords from the parallel key (♭VI, ♭III, iv in major), secondary dominants (II7, III7, VI7), secondary diminished chords, tritone subs and the Neapolitan ♭II land here. In minor, chords from melodic minor (like i6) land here too.</span><br><span data-tr="b. &lt;b&gt;Blues/Bluesvari:&lt;/b&gt; I7 ile IV7'yi birlikte ya da I, ♭III ve IV majörü birlikte kullananlar.">b. <b>Blues/bluesy:</b> uses I7 and IV7 together, or major I, ♭III and IV together.</span><br><span data-tr="c. &lt;b&gt;Modal:&lt;/b&gt; akor sesleri tek bir moda sığanlar ya da mesela Doryen ile doğal minörü, Miksolidyen ile majörü karıştıranlar (mod sağda yazıyor).">c. <b>Modal:</b> the chord tones fit a single mode, or it mixes, say, Dorian with natural minor or Mixolydian with major (the mode is named on the right).</span><br><span data-tr="d. &lt;b&gt;Karışık:&lt;/b&gt; hiçbirine uymayanlar da karışık işte...">d. <b>Mixed:</b> whatever fits none of the above is, well, mixed...</span></p>
   <p data-tr="Vurgulu numaralar ton dışı akorlar, sağdaki Do majör / La minör hangi tona göre okunduğu. Akorlara ya da ↓ işaretine tıklayınca kartın tamamı açılıyor; her kartta geri dönmek için ↑ noluyor burda var.">Highlighted numerals are chords outside the key; the C major / A minor on the right tells you which key it’s read in. Click the chords or the ↓ to open the full card; every card has a ↑ what’s going on to get back here.</p>
   </div>
   <div class="ovgrid" id="ovgrid"></div>
@@ -879,22 +879,36 @@ function ctype(q){return /^(7|9|11|13|7#9|7b9|7#5|7b5|7sus4)$/.test(q)?"D":/^(m|
 function outOfKey(r,mode){var ok=(mode==="m"?OKm:OKM)[((r.semi%12)+12)%12];return !ok||ok.indexOf(ctype(r.q))<0}
 var MODES=[["dor",[0,2,3,5,7,9,10],"m"],["mix",[0,2,4,5,7,9,10],"M"],["phr",[0,1,3,5,7,8,10],"m"],["lyd",[0,2,4,6,7,9,11],"M"],["phd",[0,1,4,5,7,8,10],null],["loc",[0,1,3,5,6,8,10],null]];
 function progPcs(p){var set={};p.rn.split(/\s+/).forEach(function(t){var r=parseRN(t);if(!r)return;QBYK[r.q].iv.forEach(function(x){set[((r.semi+x[0])%12+12)%12]=1});if(r.bass!==null)set[((r.bass%12)+12)%12]=1});return Object.keys(set).map(Number)}
+var SCM=[0,2,4,5,7,9,11],SCN=[0,2,3,5,7,8,10],SCH=[0,2,3,5,7,8,11],SCMEL=[0,2,3,5,7,9,11];
+function subOf(a,sc){return a.every(function(x){return sc.indexOf(x)>=0})}
+function chordPcs(r){return QBYK[r.q].iv.map(function(x){return ((r.semi+x[0])%12+12)%12})}
+function explainable(r,m){var pc=chordPcs(r),root=((r.semi%12)+12)%12,t=ctype(r.q),M=function(x){return ((x%12)+12)%12};
+  var home=m==="M"?[SCM]:[SCN,SCH,SCMEL],par=m==="M"?[SCN,SCH]:[SCM],tg=m==="M"?[0,2,4,5,7,9]:[0,3,5,7,8,10];
+  if(home.some(function(s){return subOf(pc,s)})||par.some(function(s){return subOf(pc,s)}))return true;
+  if((t==="M"||t==="D")&&tg.indexOf(M(root+5))>=0)return true; /* ikincil dominant */
+  if((t==="d"||t==="x")&&tg.indexOf(M(root+1))>=0)return true; /* ikincil eksiltik */
+  if(t==="D"&&tg.indexOf(M(root-1))>=0)return true; /* tritone ikamesi */
+  if(t==="m"&&tg.indexOf(M(root+10))>=0)return true; /* ikincil ii */
+  if(t==="M"&&root===1)return true; /* Napoliten */
+  if(r.q==="aug"&&(root===0||root===(m==="M"?7:3)))return true; /* geçit artık akoru */
+  return false}
 function progGroup(p){if(p.g)return p.g;var toks=p.rn.split(/\s+/),out=0,iv7=false;toks.forEach(function(t){var r=parseRN(t);if(!r)return;if(outOfKey(r,p.m))out++;if(r.q==="7"&&(r.semi===5||r.semi===0))iv7=true});
-  if(!out)return p.m;
-  var pcs=progPcs(p),has=function(x){return pcs.indexOf(x)>=0};
+  var pcs=progPcs(p);
+  if(!out){if(p.m==="M"||subOf(pcs,[0,2,3,5,7,8,10,11]))return p.m;return "mA"}
+  var has=function(x){return pcs.indexOf(x)>=0};
   var rs=toks.map(parseRN).filter(Boolean),dom=function(sm){return rs.some(function(r){return r.semi===sm&&r.q==="7"})},maj=function(sm){return rs.some(function(r){return r.semi===sm&&(ctype(r.q)==="M"||r.q==="7")})};
   if(p.m==="M"&&((dom(0)&&dom(5))||(maj(0)&&maj(3)&&maj(5)&&rs.every(function(r){return [0,3,5,7,8,10].indexOf(((r.semi%12)+12)%12)>=0&&ctype(r.q)!=="m"}))))return "blues";
   var fits=function(sc){return pcs.every(function(x){return sc.indexOf(x)>=0})};
   for(var i=0;i<MODES.length;i++)if(fits(MODES[i][1])){p._mode=MODES[i][0];return "modal"}
   if(p.m==="m"&&fits([0,2,3,5,7,8,9,10])){p._mode="dorA";return "modal"}
   if(p.m==="M"&&fits([0,2,4,5,7,9,10,11])){p._mode="mixI";return "modal"}
-  return "x"}
+  return toks.map(parseRN).filter(Boolean).every(function(r){return explainable(r,p.m)})?(p.m==="M"?"MA":"mA"):"x"}
 var MODENAME={dor:["Dorian","Doryen"],mix:["Mixolydian","Miksolidyen"],phr:["Phrygian","Frigyen"],lyd:["Lydian","Lidyen"],phd:["Phrygian dominant","Frigyen dominant"],loc:["Locrian","Lokriyen"],dorA:["Dorian + Aeolian","Doryen + Eolyen"],mixI:["Mixolydian + major","Miksolidyen + majör"]};
-var GORDER=["M","m","blues","modal","x"];
-function GT(g){return {M:L("Major Progressions","Majör Gidişatlar"),m:L("Minor Progressions","Minör Gidişatlar"),blues:L("Blues / Bluesy Progressions","Blues / Bluesvari Gidişatlar"),modal:L("Modal Progressions","Modal Gidişatlar"),x:L("Miscellaneous Progressions","Karışık Gidişatlar")}[g]}
+var GORDER=["M","MA","m","mA","blues","modal","x"];
+function GT(g){return {M:L("Major Progressions","Majör Gidişatlar"),m:L("Minor Progressions","Minör Gidişatlar"),MA:L("Major Progressions with a Twist","Alengirli Majör Gidişatlar"),mA:L("Minor Progressions with a Twist","Alengirli Minör Gidişatlar"),blues:L("Blues / Bluesy Progressions","Blues / Bluesvari Gidişatlar"),modal:L("Modal Progressions","Modal Gidişatlar"),x:L("Miscellaneous Progressions","Karışık Gidişatlar")}[g]}
 var PGROUP=null;function groups(){if(!PGROUP){PGROUP={};GORDER.forEach(function(k){PGROUP[k]=[]});PROGS.forEach(function(p,pi){PGROUP[progGroup(p)].push(pi)});
   var BF=[38,136,88,138,89,137,77,78],brank=function(pi){var i=BF.indexOf(pi);return i>=0?i:PROGS[pi].m==="m"?10:20};
-  ["M","m","modal","x"].forEach(function(g){PGROUP[g]=PGROUP[g].map(function(pi,i){return [pi,i,PROGS[pi].rn.split(/\s+/).length]}).sort(function(a,b){return a[2]-b[2]||a[1]-b[1]}).map(function(x){return x[0]})});
+  ["M","MA","m","mA","modal","x"].forEach(function(g){PGROUP[g]=PGROUP[g].map(function(pi,i){return [pi,i,PROGS[pi].rn.split(/\s+/).length]}).sort(function(a,b){return a[2]-b[2]||a[1]-b[1]}).map(function(x){return x[0]})});
   PGROUP.blues=PGROUP.blues.map(function(pi,i){return [pi,i]}).sort(function(a,b){return brank(a[0])-brank(b[0])||a[1]-b[1]}).map(function(x){return x[0]})}return PGROUP}
 function drawOverview(){
   var G=groups(),ORDER=GORDER,T={};GORDER.forEach(function(g){T[g]=GT(g)});
