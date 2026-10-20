@@ -1,1 +1,1 @@
-Alfonker’in Musiki Şeysi: akor gidişatları ve mandolin defteri
+Bizzat Kendimin Musiki Şeysi: akor gidişatları ve mandolin defteri
